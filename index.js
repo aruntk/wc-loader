@@ -2,7 +2,7 @@
   MIT License http://www.opensource.org/licenses/mit-license.php
   Author Arun Kumar T K @aruntk
   */
-// const loaderUtils = require('loader-utils');
+const loaderUtils = require('loader-utils');
 const parse5 = require('parse5');
 const polyclean = require('polyclean');
 const fs = require('fs');
@@ -14,11 +14,8 @@ const Synthesizer = require('./synthesis-gen.js');
 class DissectHtml {
   constructor() {
     this.dissected = {
-      head: '',
-      body: '',
       js: '//*synthesis*//\n',
       tailJs: '', // tailJs is appened last
-      bodyAttrs: {},
     };
   }
   dissect(contents, sourcePath) {
@@ -43,30 +40,14 @@ class DissectHtml {
                 const headContents = parse5.serialize(_child);
                 // for files inside client folder html contents can be
                 // directly added to dissected.html
-                if (self.path.match(/^client\//)) {
-                  self.dissected.head += headContents;
-                } else {
-                  self.dissected.js += `\n${Synthesizer.generateJS(headContents, true)}\n`;
-                }
+                self.dissected.js += `\n${Synthesizer.generateJS(headContents, true)}\n`;
               }
                 break;
               case 'body': {
                 const body = _child;
-                body.attrs.forEach((attr) => {
-                  const bodyAttrs = self.dissected.bodyAttrs;
-                  const hasNameAttr = {}.hasOwnProperty.call(bodyAttrs, attr.name);
-                  if (!hasNameAttr) {
-                    self.dissected.bodyAttrs[attr.name] = attr.value;
-                  }
-                });
-                delete body.attrs;
                 body.childNodes = self.processChildNodes(body.childNodes);
                 const bodyContents = parse5.serialize(body);
-                if (self.path.match(/^client\//)) {
-                  self.dissected.body += bodyContents;
-                } else {
-                  self.dissected.js += `\n${Synthesizer.generateJS(bodyContents)}\n`;
-                }
+                self.dissected.js += `\n${Synthesizer.generateJS(bodyContents)}\n`;
               }
                 break;
               default:
@@ -165,9 +146,8 @@ class DissectHtml {
     return null;
   }
   babelJs(js) {
-    const babelOptions = Babel.getDefaultOptions();
     // const prod = process.env.NODE_ENV ==='production';
-    return Babel.compile(js, babelOptions).code;
+    return Babel.transform(js).code;
   }
 
   importableUrl(url) {
@@ -202,7 +182,7 @@ class DissectHtml {
                 }
               }
               const link = `require('${url}');`;
-              self.dissected.tailJs += `\n${link}\n`;
+              self.dissected.tailJs += `\n${link}\/\/${url}\n`;
             }
               break;
               // Processing <link rel='stylesheet' href='filename.css'>
@@ -255,6 +235,11 @@ const handleTags = (tags) => {
 
 
 module.exports = function (content) {
+  var query = loaderUtils.parseQuery(this.query);
+
+  if (this.cacheable) {
+    this.cacheable();
+  }
   // /foo/bar/file.js
   var srcFilepath = this.resourcePath;
   // /foo/bar/file.js -> file
@@ -266,5 +251,5 @@ module.exports = function (content) {
   const parsed = parse5.parse(content);
   const dissectFn = new DissectHtml();
   dissectFn.dissect(parsed, srcFilepath);
-  return dissectFn.dissected.js + dissectFn.dissected.tailJs;
+  return dissectFn.dissected.js;
 };
