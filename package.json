@@ -1,0 +1,40 @@
+{
+  "name": "wc-loader",
+  "version": "1.0.0",
+  "description": "Web components webpack loader",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "lodash": "4.17.0",
+    "polyclean": "1.3.1",
+    "parse5": "2.2.3",
+    "loader-utils": "^0.2.15",
+    "object-assign": "^4.1.0"
+  },
+  "devDependencies": {
+    "beautify-lint": "^1.0.4",
+    "codecov.io": "^0.1.6",
+    "eslint": "^3.1.1",
+    "istanbul": "^0.4.4",
+    "js-beautify": "^1.6.3",
+    "mocha": "^2.5.3",
+    "should": "^10.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aruntk/wc-loader.git"
+  },
+  "keywords": [
+    "polymer",
+    "webpack",
+    "webcomponents"
+  ],
+  "author": "Arun Kumar T K (@aruntk)",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/aruntk/wc-loader/issues"
+  },
+  "homepage": "https://github.com/aruntk/wc-loader#readme"
+}
