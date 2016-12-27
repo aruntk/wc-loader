@@ -2,7 +2,7 @@
   MIT License http://www.opensource.org/licenses/mit-license.php
   Author Arun Kumar T K @aruntk
   */
-const loaderUtils = require('loader-utils');
+// const loaderUtils = require('loader-utils');
 const parse5 = require('parse5');
 const polyclean = require('polyclean');
 const fs = require('fs');
@@ -182,7 +182,7 @@ class DissectHtml {
                 }
               }
               const link = `require('${url}');`;
-              self.dissected.tailJs += `\n${link}\/\/${url}\n`;
+              self.dissected.tailJs += `\n${link}\n`;
             }
               break;
               // Processing <link rel='stylesheet' href='filename.css'>
@@ -227,27 +227,20 @@ class DissectHtml {
   }
 }
 
-const handleTags = (tags) => {
-  const handler = new DissectHtml();
-  handler.dissect(tags);
-  return handler.dissected;
-};
-
-
 module.exports = function (content) {
-  var query = loaderUtils.parseQuery(this.query);
+  // const query = loaderUtils.parseQuery(this.query);
 
   if (this.cacheable) {
     this.cacheable();
   }
   // /foo/bar/file.js
-  var srcFilepath = this.resourcePath;
+  const srcFilepath = this.resourcePath;
   // /foo/bar/file.js -> file
-  var srcFilename = path.basename(srcFilepath, path.extname(srcFilepath));
+  // const srcFilename = path.basename(srcFilepath, path.extname(srcFilepath));
   // /foo/bar/file.js -> /foo/bar
-  var srcDirpath  = path.dirname(srcFilepath);
+  // const srcDirpath  = path.dirname(srcFilepath);
   // /foo/bar -> bar
-  var srcDirname  = srcDirpath.split(path.sep).pop();
+  // const srcDirname  = srcDirpath.split(path.sep).pop();
   const parsed = parse5.parse(content);
   const dissectFn = new DissectHtml();
   dissectFn.dissect(parsed, srcFilepath);
