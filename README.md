@@ -5,6 +5,8 @@ Webcomponents webpack loader **With Hot Code Reload Support For All Imports**
 
 [![Donate](https://dantheman827.github.io/images/donate-button.svg)](https://www.paypal.me/arunkumartk)
 
+DEMO - https://github.com/aruntk/polymer-webpack-demo
+
 ## About
 
 wc-loader helps you use webcomponents (polymer, x-tags etc also) with webpack.
