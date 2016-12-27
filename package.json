@@ -32,7 +32,7 @@
     "webcomponents"
   ],
   "author": "Arun Kumar T K (@aruntk)",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/aruntk/wc-loader/issues"
   },
