@@ -1,11 +1,11 @@
 <div align="center"> 
-  <a href="http://webcomponents.org/">
-    <img width="200" height="200"
-      src="http://webcomponents.org/img/logo.svg">
-  </a>
   <a href="https://www.polymer-project.org">
     <img width="200" height="140" vspace="30"
     src="https://www.polymer-project.org/images/logos/p-logo.png">
+  </a>
+    <a href="http://webcomponents.org/">
+    <img width="200" height="200"
+      src="http://webcomponents.org/img/logo.svg">
   </a>
   <a href="https://github.com/webpack/webpack">
     <img width="200" height="200" vspace="" hspace="25"
