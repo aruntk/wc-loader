@@ -9,13 +9,19 @@
   </a>
   <h1>WC Loader</h1>
   <p>Webcomponents webpack loader **With Hot Code Reload Support For All Imports**.<p>
+   <a href="https://gitter.im/aruntk/meteorwebcomponents?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge">
+    <img
+      src="https://badges.gitter.im/Join Chat.svg">
+  </a>
+  <p>
+   <a href="https://www.paypal.me/arunkumartk">
+    <img
+      src="https://dantheman827.github.io/images/donate-button.svg">
+  </a>
+  </p>
+<p> DEMO - <a href="https://github.com/aruntk/polymer-webpack-demo">https://github.com/aruntk/polymer-webpack-demo</a></p>
 </div>
 
-[![Gitter](https://badges.gitter.im/Join Chat.svg)](https://gitter.im/aruntk/meteorwebcomponents?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-
-[![Donate](https://dantheman827.github.io/images/donate-button.svg)](https://www.paypal.me/arunkumartk)
-
-DEMO - https://github.com/aruntk/polymer-webpack-demo
 
 ## About
 
