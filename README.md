@@ -38,10 +38,7 @@ npm i -D wc-loader
 module: {
   loaders: [{
     test: /\.html$/,
-    loader: 'wc',
-    query: {
-      minimize: true
-    }
+    loader: 'wc'
   }]
 }
 ```
