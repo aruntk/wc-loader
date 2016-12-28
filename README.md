@@ -1,14 +1,18 @@
-<div align="center">
-  <img width="200" height="200"
-    src="http://webcomponents.org/img/logo.svg">
-   <img width="200" height="140" vspace="30"
+<div align="center"> 
+  <a href="https://www.polymer-project.org">
+    <img width="200" height="140" vspace="30"
     src="https://www.polymer-project.org/images/logos/p-logo.png">
+  </a>
+    <a href="http://webcomponents.org/">
+    <img width="200" height="200"
+      src="http://webcomponents.org/img/logo.svg">
+  </a>
   <a href="https://github.com/webpack/webpack">
     <img width="200" height="200" vspace="" hspace="25"
       src="https://worldvectorlogo.com/logos/webpack.svg">
   </a>
   <h1>WC Loader</h1>
-  <p>Webcomponents webpack loader <b>With Hot Code Reload Support For All Imports</b>.<p>
+  <p>Webcomponents webpack loader . Supports hot code reload.<p>
    <a href="https://gitter.im/aruntk/meteorwebcomponents?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge">
     <img
       src="https://badges.gitter.im/Join Chat.svg">
