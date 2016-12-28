@@ -12,7 +12,7 @@
       src="https://worldvectorlogo.com/logos/webpack.svg">
   </a>
   <h1>WC Loader</h1>
-  <p>Webcomponents webpack loader <b>With Hot Code Reload Support For All Imports</b>.<p>
+  <p>Webcomponents webpack loader <b>With Hot Module Reload Support For All Imports</b>.<p>
    <a href="https://gitter.im/aruntk/meteorwebcomponents?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge">
     <img
       src="https://badges.gitter.im/Join Chat.svg">
