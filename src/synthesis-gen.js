@@ -6,6 +6,7 @@ class _synthesizer {
     const htmlStr = JSON.stringify(html);
     const where = toHead ? 'head' : 'body';
     return `
+if (module.hot) {
     (function(document) {
       var _htmlStr = ${htmlStr};
       if (document.${where}) {
@@ -19,6 +20,7 @@ class _synthesizer {
         document.write(_htmlStr);
       }
     })(document);
+}
     `;
   }
 

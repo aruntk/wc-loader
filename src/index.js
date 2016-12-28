@@ -2,7 +2,8 @@
   MIT License http://www.opensource.org/licenses/mit-license.php
   Author Arun Kumar T K @aruntk
   */
-// const loaderUtils = require('loader-utils');
+const loaderUtils = require('loader-utils');
+const SourceMap = require('source-map');
 const parse5 = require('parse5');
 const polyclean = require('polyclean');
 const fs = require('fs');
@@ -227,7 +228,7 @@ class DissectHtml {
   }
 }
 
-module.exports = function (content) {
+module.exports = function (source, sourceMap) {
   // const query = loaderUtils.parseQuery(this.query);
 
   if (this.cacheable) {
@@ -241,8 +242,28 @@ module.exports = function (content) {
   // const srcDirpath  = path.dirname(srcFilepath);
   // /foo/bar -> bar
   // const srcDirname  = srcDirpath.split(path.sep).pop();
-  const parsed = parse5.parse(content);
+  const parsed = parse5.parse(source);
   const dissectFn = new DissectHtml();
   dissectFn.dissect(parsed, srcFilepath);
-  return dissectFn.dissected.js;
+  const inject = dissectFn.dissected.js;
+  if (sourceMap) {
+    const currentRequest = loaderUtils.getCurrentRequest(this);
+    const SourceNode = SourceMap.SourceNode;
+    const SourceMapConsumer = SourceMap.SourceMapConsumer;
+    const sourceMapConsumer = new SourceMapConsumer(sourceMap);
+    const node = SourceNode.fromStringWithSourceMap(source, sourceMapConsumer);
+
+    node.prepend(inject);
+
+    const result = node.toStringWithSourceMap({
+      file: currentRequest,
+    });
+
+    this.callback(null, result.code, result.map.toJSON());
+
+    return;
+  }
+
+  // prepend collected inject at the top of file
+  return inject;
 };
