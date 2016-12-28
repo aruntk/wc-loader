@@ -23,7 +23,7 @@
 </div>
 
 
-## About
+<h2 align="center">About</h2>
 
 wc-loader helps you use webcomponents (polymer, x-tags etc also) with webpack.
 
@@ -42,13 +42,13 @@ Does not use any regex to parse html. :)
 5. Handles loading order of html and js inside the polymer files
 4. Adds components to document during runtime.
 
-## Installation
+<h2 align="center">Installation</h2>
 
 ```sh
 npm i -D wc-loader
 ```
 
-## Usage
+<h2 align="center">Usage</h2>
 
 ```js
 module: {
