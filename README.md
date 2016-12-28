@@ -1,5 +1,15 @@
-# wc-loader
-Webcomponents webpack loader **With Hot Code Reload Support For All Imports**
+<div align="center">
+  <img width="200" height="200"
+    src="http://webcomponents.org/img/logo.svg">
+   <img width="200" height="140" vspace="30"
+    src="https://www.polymer-project.org/images/logos/p-logo.png">
+  <a href="https://github.com/webpack/webpack">
+    <img width="200" height="200" vspace="" hspace="25"
+      src="https://worldvectorlogo.com/logos/webpack.svg">
+  </a>
+  <h1>WC Loader</h1>
+  <p>Webcomponents webpack loader **With Hot Code Reload Support For All Imports**.<p>
+</div>
 
 [![Gitter](https://badges.gitter.im/Join Chat.svg)](https://gitter.im/aruntk/meteorwebcomponents?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
