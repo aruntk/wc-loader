@@ -62,3 +62,11 @@ module: {
   }]
 }
 ```
+
+### Like it?
+
+:star: this repo
+
+### Found a bug?
+
+Raise an issue!
