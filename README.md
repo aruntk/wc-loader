@@ -20,7 +20,7 @@
   <p>
    <a href="https://www.paypal.me/arunkumartk">
     <img
-      src="https://dantheman827.github.io/images/donate-button.svg">
+      src="https://dantheman827.github.io/images/donate-button.svg" height="20">
   </a>
   </p>
 <p> DEMO - <a href="https://github.com/aruntk/polymer-webpack-demo">https://github.com/aruntk/polymer-webpack-demo</a></p>
