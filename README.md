@@ -15,7 +15,7 @@
   <p>Webcomponents webpack loader . Supports hot code reload.<p>
    <a href="https://gitter.im/aruntk/meteorwebcomponents?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge">
     <img
-      src="https://badges.gitter.im/Join Chat.svg">
+      src="https://badges.gitter.im/Join Chat.svg" height="20">
   </a>
   <p>
    <a href="https://www.paypal.me/arunkumartk">
