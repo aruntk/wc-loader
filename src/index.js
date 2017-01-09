@@ -2,21 +2,24 @@
   MIT License http://www.opensource.org/licenses/mit-license.php
   Author Arun Kumar T K @aruntk
   */
-const loaderUtils = require('loader-utils');
-const SourceMap = require('source-map');
-const parse5 = require('parse5');
-const polyclean = require('polyclean');
-const fs = require('fs');
-const path = require('path');
-const _ = require('lodash');
-const Babel = require('babel-core');
-const Synthesizer = require('./synthesis-gen.js');
+import loaderUtils from 'loader-utils';
+import SourceMap from 'source-map';
+import parse5 from 'parse5';
+import polyclean from 'polyclean';
+import fs from 'fs';
+import url from 'url';
+import path from 'path';
+import * as _ from 'lodash';
+import * as Babel from 'babel-core';
+import assign from 'object-assign';
+import Synthesizer from './synthesis-gen.js';
 
 class DissectHtml {
-  constructor() {
+  constructor(config) {
+    this.config = config;
     this.dissected = {
       js: '//*synthesis*//\n',
-      tailJs: '', // tailJs is appened last
+      tailJs: '', // tailJs is appended last
     };
   }
   dissect(contents, sourcePath) {
@@ -111,19 +114,37 @@ class DissectHtml {
           return domModule;
         }
         case 'div': {
-          const attrs = _.filter(child.attrs, o => (o.name === 'hidden' || o.name === 'by-vulcanize'));
+          const divChild = child;
+          const attrs = _.filter(divChild.attrs, o => (o.name === 'hidden' || o.name === 'by-vulcanize'));
           if (attrs.length >= 2) {
-            const _childNodes = self.processChildNodes(child.childNodes);
+            const _childNodes = self.processChildNodes(divChild.childNodes);
             pushNodes = pushNodes.concat(_childNodes);
           } else {
-            return child;
+            if (divChild.childNodes) {
+              divChild.childNodes = self.processChildNodes(divChild.childNodes);
+            }
+            return divChild;
           }
         }
           break;
         case '#comment':
           break;
-        default:
-          return child;
+
+        default: {
+          const defChild = child;
+          const attrs = _.map(defChild.attrs, (o) => {
+            // all src values without [[*]] and {{*}}
+            if (o.name === 'src' || o.name === 'src$') {
+              o.value = self._changeRelUrl(o.value);
+            }
+            return o;
+          });
+          defChild.attrs = attrs;
+          if (defChild.childNodes) {
+            defChild.childNodes = self.processChildNodes(defChild.childNodes);
+          }
+          return defChild;
+        }
       }
       return null;
     }));
@@ -151,11 +172,15 @@ class DissectHtml {
     return Babel.transform(js).code;
   }
 
-  importableUrl(url) {
-    if (url.match(/^(\/|https?:\/)/)) {
-      return false;
+  importableUrl(link) {
+    const root = this.config.root;
+    if(!loaderUtils.isUrlRequest(link, root)) return;
+    const uri = url.parse(link);
+    if (uri.hash !== null && uri.hash !== undefined) {
+      uri.hash = null;
+      link = uri.format();
     }
-    return url.match(/^(\.\/|\.\.\/)/) ? url : `./${url}`;
+    return loaderUtils.urlToRequest(link);
   }
   processLinks(child) {
     const self = this;
@@ -169,8 +194,8 @@ class DissectHtml {
           switch (ifImport.value) {
             case 'import': {
               // file is imported using require
-              const url = self.importableUrl(hrefAttr.value);
-              if (!url) {
+              const link = self.importableUrl(hrefAttr.value);
+              if (!link) {
                 return child;
               }
               const typeAttr = _.find(child.attrs, v => (v.name === 'type'));
@@ -182,8 +207,8 @@ class DissectHtml {
                     break;
                 }
               }
-              const link = `require('${url}');`;
-              self.dissected.tailJs += `\n${link}\n`;
+              const importable = `require('${link}');`;
+              self.dissected.tailJs += `\n${importable}\n`;
             }
               break;
               // Processing <link rel='stylesheet' href='filename.css'>
@@ -202,11 +227,36 @@ class DissectHtml {
     }
     return null;
   }
+  _changeRelUrl(inpUrl, basePath) {
+
+    // avoids var(--url-variable) and bound properties [[prop]] and {{prop}};
+    if (inpUrl && !inpUrl.match(/var\(.*?\)|({{|\[\[)\s*[\w\.]+\s*(}}|\]\])/ig)) {
+      // avoids absolute & remote urls
+      const link = this.importableUrl(inpUrl);
+      console.log(link);
+      if (link) {
+        return path.resolve(path.dirname((basePath || `/${this.sourceName}`)), inpUrl);
+      }
+    }
+    return inpUrl;
+
+  }
+  _changeCssUrls(text, cssBasePath) {
+    const self = this;
+    // to get -> property: url(filepath)
+
+    const processed = text.replace(/url\(['|"]?([^)]+?)['|"]?\)/ig, function(_u, link) {
+      // to get -> filepath from url(filepath), url('filepath') and url("filepath")
+      return `url(${self._changeRelUrl(link, cssBasePath)})`;
+    });
+    return processed;
+  }
+
   processCssImport(hrefAttr, child) {
-    const url = path.resolve(this.path, '../', hrefAttr.value);
+    const link = path.resolve(this.path, '../', hrefAttr.value);
     // checks if file exists
-    if (fs.existsSync(url)) {
-      const contents = fs.readFileSync(url, 'utf8');
+    if (fs.existsSync(link)) {
+      const contents = fs.readFileSync(link, 'utf8');
       // css is inlined
       const minified = this.processStyle(contents);
       if (minified) {
@@ -228,12 +278,38 @@ class DissectHtml {
   }
 }
 
+function randomIdent() {
+  return "xxxWCLINKxxx" + Math.random() + Math.random() + "xxx";
+}
+
+function getLoaderConfig(context) {
+  const query = loaderUtils.parseQuery(context.query);
+  const configKey = query.config || 'wcLoader';
+  const config = context.options && context.options.hasOwnProperty(configKey) ? context.options[configKey] : {};
+
+  delete query.config;
+
+  return assign(query, config);
+}
 module.exports = function (source, sourceMap) {
   // const query = loaderUtils.parseQuery(this.query);
 
   if (this.cacheable) {
     this.cacheable();
   }
+  const config = getLoaderConfig(this);
+  let attributes = ['img:src'];
+  if(config.attrs !== undefined) {
+    if(typeof config.attrs === 'string')
+      attributes = config.attrs.split(' ');
+    else if(Array.isArray(config.attrs))
+      attributes = config.attrs;
+    else if(config.attrs === false)
+      attributes = [];
+    else
+      throw new Error('Invalid value to config parameter attrs');
+  }
+  const root = config.root;
   // /foo/bar/file.js
   const srcFilepath = this.resourcePath;
   // /foo/bar/file.js -> file
@@ -243,7 +319,7 @@ module.exports = function (source, sourceMap) {
   // /foo/bar -> bar
   // const srcDirname  = srcDirpath.split(path.sep).pop();
   const parsed = parse5.parse(source);
-  const dissectFn = new DissectHtml();
+  const dissectFn = new DissectHtml(config);
   dissectFn.dissect(parsed, srcFilepath);
   const inject = dissectFn.dissected.js;
   if (sourceMap) {
