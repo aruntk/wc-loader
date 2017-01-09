@@ -12,59 +12,45 @@ import path from 'path';
 import * as _ from 'lodash';
 import * as Babel from 'babel-core';
 import assign from 'object-assign';
-import Synthesizer from './synthesis-gen.js';
+
+function randomIdent() {
+  return "xxxWCLINKxxx" + Math.random() + Math.random() + "xxx";
+}
 
 class DissectHtml {
   constructor(config) {
     this.config = config;
     this.dissected = {
-      js: '//*synthesis*//\n',
-      tailJs: '', // tailJs is appended last
+      out: '//*wc*//\n',
+      tail: '', // tail is appended last
     };
+    this.links = {};
   }
-  dissect(contents, sourcePath) {
-    this.document = contents;
+  dissect(ast, sourcePath) {
     this.path = sourcePath;
     const self = this;
-    const children = this.document.childNodes || [];
-    for (let i = 0; i < children.length; i += 1) {
-      const child = children[i];
-      switch (child.nodeName) {
-        case '#documentType':
-          break;
-        case '#comment':
-          break;
-        case 'html': {
-          const _children = child.childNodes || [];
-          for (let _i = 0; _i < _children.length; _i += 1) {
-            const _child = _children[_i];
-            switch (_child.nodeName) {
-              case 'head': {
-                _child.childNodes = self.processChildNodes(_child.childNodes);
-                const headContents = parse5.serialize(_child);
-                // for files inside client folder html contents can be
-                // directly added to dissected.html
-                self.dissected.js += `\n${Synthesizer.generateJS(headContents, true)}\n`;
-              }
-                break;
-              case 'body': {
-                const body = _child;
-                body.childNodes = self.processChildNodes(body.childNodes);
-                const bodyContents = parse5.serialize(body);
-                self.dissected.js += `\n${Synthesizer.generateJS(bodyContents)}\n`;
-              }
-                break;
-              default:
-                break;
-            }
-          }
-        }
-          break;
-        default:
-          break;
-      }
+    ast.childNodes = this.processChildNodes(ast.childNodes || []);
+    let html = parse5.serialize(ast);
+    html += `\n<script>${this.dissected.tail}</script>\n`;
+    this.dissected.out = `\n${this.exportHtml(html)}`
+  }
+  exportHtml(html) {
+    const config = this.config;
+    const root = config.root;
+    const links = this.links;
+    const htmlStr = JSON.stringify(html);
+    let exportsString = "module.exports = ";
+    if (config.exportAsDefault) {
+      exportsString = "exports.default = ";
+
+    } else if (config.exportAsEs6Default) {
+      exportsString = "export default ";
     }
-    this.dissected.js += `\n${this.dissected.tailJs}\n`;
+
+    return exportsString + htmlStr.replace(/xxxWCLINKxxx[0-9\.]+xxx/g, function(match) {
+      if(!links[match]) return match;
+      return '" + require(' + JSON.stringify(loaderUtils.urlToRequest(links[match], root)) + ') + "';
+    }) + ";";
   }
   processChildNodes(childNodes) {
     const self = this;
@@ -128,8 +114,8 @@ class DissectHtml {
         }
           break;
         case '#comment':
+        case '#documentType':
           break;
-
         default: {
           const defChild = child;
           const attrs = _.map(defChild.attrs, (o) => {
@@ -150,22 +136,28 @@ class DissectHtml {
     }));
     return processedNodes.concat(pushNodes);
   }
-  processStyle(css) {
-    return polyclean.stripCss(css);
+  processStyle(css, cssBasePath) {
+    return this._changeCssUrls(polyclean.stripCss(css), cssBasePath);
   }
   processScripts(child) {
-    const self = this;
-    const importSource = _.find(child.attrs, v => (v.name === 'src'));
+    const importSource = this.changeLinks(child, 'src');
     if (importSource && importSource.value) {
-      const importableUrl = self.importableUrl(importSource.value);
-      if (!importableUrl) {
-        return child;
-      }
-      self.dissected.tailJs += `\nrequire('${importableUrl}');\n`;
-    } else {
-      self.dissected.tailJs += `\n${self.babelJs(parse5.serialize(child))}\n`;
+      return child;
     }
+    this.dissected.tail += `\n${this.babelJs(parse5.serialize(child))}\n`;
     return null;
+  }
+  changeLinks(child, attr) {
+    const self = this;
+    return _.find(child.attrs, (v, i) => {
+      if(v.name === attr) {
+        const link = self._changeRelUrl(v.value);
+        if(link) {
+          child.attrs[i].value = link;
+        }
+        return true;
+      }
+    });
   }
   babelJs(js) {
     // const prod = process.env.NODE_ENV ==='production';
@@ -180,52 +172,17 @@ class DissectHtml {
       uri.hash = null;
       link = uri.format();
     }
-    return loaderUtils.urlToRequest(link);
+    do {
+      var ident = randomIdent();
+    } while(this.links[ident]);
+    this.links[ident] = link;
+    return ident;
   }
   processLinks(child) {
     const self = this;
     // <link rel='import'...> and <link rel='stylesheet'...>
-    const supportedRels = ['import', 'stylesheet'];
-    const ifImport = _.find(child.attrs, v => (v.name === 'rel' && supportedRels.indexOf(v.value) > -1));
-    if (ifImport) {
-      const hrefAttr = _.find(child.attrs, v => v.name === 'href');
-      if (hrefAttr) {
-        if (hrefAttr.value) {
-          switch (ifImport.value) {
-            case 'import': {
-              // file is imported using require
-              const link = self.importableUrl(hrefAttr.value);
-              if (!link) {
-                return child;
-              }
-              const typeAttr = _.find(child.attrs, v => (v.name === 'type'));
-              if (typeAttr) {
-                switch (typeAttr.value) {
-                  case 'css':
-                    return self.processCssImport(hrefAttr, child);
-                  default:
-                    break;
-                }
-              }
-              const importable = `require('${link}');`;
-              self.dissected.tailJs += `\n${importable}\n`;
-            }
-              break;
-              // Processing <link rel='stylesheet' href='filename.css'>
-            case 'stylesheet':
-              // absolute file path
-              return self.processCssImport(hrefAttr, child);
-            default:
-              break;
-          }
-        }
-      } else {
-        return child;
-      }
-    } else {
-      return child;
-    }
-    return null;
+    const hrefAttr = this.changeLinks(child, 'href');
+    return child;
   }
   _changeRelUrl(inpUrl, basePath) {
 
@@ -233,13 +190,11 @@ class DissectHtml {
     if (inpUrl && !inpUrl.match(/var\(.*?\)|({{|\[\[)\s*[\w\.]+\s*(}}|\]\])/ig)) {
       // avoids absolute & remote urls
       const link = this.importableUrl(inpUrl);
-      console.log(link);
       if (link) {
-        return path.resolve(path.dirname((basePath || `/${this.sourceName}`)), inpUrl);
+        return link;
       }
     }
     return inpUrl;
-
   }
   _changeCssUrls(text, cssBasePath) {
     const self = this;
@@ -251,36 +206,8 @@ class DissectHtml {
     });
     return processed;
   }
-
-  processCssImport(hrefAttr, child) {
-    const link = path.resolve(this.path, '../', hrefAttr.value);
-    // checks if file exists
-    if (fs.existsSync(link)) {
-      const contents = fs.readFileSync(link, 'utf8');
-      // css is inlined
-      const minified = this.processStyle(contents);
-      if (minified) {
-        // link tag is replaced with style tag
-        return _.extend(child, {
-          nodeName: 'style',
-          tagName: 'style',
-          attrs: [],
-          childNodes: [
-            {
-              nodeName: '#text',
-              value: minified,
-            },
-          ],
-        });
-      }
-    }
-    return child;
-  }
 }
 
-function randomIdent() {
-  return "xxxWCLINKxxx" + Math.random() + Math.random() + "xxx";
-}
 
 function getLoaderConfig(context) {
   const query = loaderUtils.parseQuery(context.query);
@@ -321,7 +248,7 @@ module.exports = function (source, sourceMap) {
   const parsed = parse5.parse(source);
   const dissectFn = new DissectHtml(config);
   dissectFn.dissect(parsed, srcFilepath);
-  const inject = dissectFn.dissected.js;
+  const inject = dissectFn.dissected.out;
   if (sourceMap) {
     const currentRequest = loaderUtils.getCurrentRequest(this);
     const SourceNode = SourceMap.SourceNode;
