@@ -5,7 +5,7 @@
   </a>
     <a href="http://webcomponents.org/">
     <img width="200" height="200"
-      src="https://raw.githubusercontent.com/webcomponents/webcomponents-icons/master/logo/logo.svg">
+      src="https://raw.githubusercontent.com/webcomponents/webcomponents-icons/master/logo/logo_512x512.png">
   </a>
   <a href="https://github.com/webpack/webpack">
     <img width="200" height="200" vspace="" hspace="25"
