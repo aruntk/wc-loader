@@ -23,11 +23,12 @@ function randomIdent() {
 class DissectHtml {
   constructor(config, options) {
     this.dissected = {
-      html: '<!--__wc__loader -->\n',
+      html: '/*__wc__loader*/\n',
       js: '', // js is appened last
     };
     this.config = config;
     this.links = {};
+    this.otherDeps = [];
     this.options = options;
   }
   dissect(contents, sourcePath) {
@@ -132,9 +133,20 @@ class DissectHtml {
     }));
     return processedNodes.concat(pushNodes);
   }
-  processStyle(css) {
-    return polyclean.stripCss(css);
+  processStyle(css, cssBasePath) {
+    return this._changeCssUrls(polyclean.stripCss(css), cssBasePath);
   }
+  _changeCssUrls(text, cssBasePath) {
+    const self = this;
+    // to get -> property: url(filepath)
+
+    const processed = text.replace(/url\(['|"]?([^)]+?)['|"]?\)/ig, function(_u, url) {
+      // to get -> filepath from url(filepath), url('filepath') and url("filepath")
+      return `url(${self._changeRelUrl(url, cssBasePath)})`;
+    });
+    return processed;
+  }
+
   processScripts(child) {
     const self = this;
     const importSource = _.find(child.attrs, v => (v.name === 'src'));
@@ -192,35 +204,33 @@ class DissectHtml {
     const ifImport = _.find(child.attrs, v => (v.name === 'rel' && supportedRels.indexOf(v.value) > -1));
     if (ifImport) {
       const hrefAttr = _.find(child.attrs, v => v.name === 'href');
-      if (hrefAttr) {
-        if (hrefAttr.value) {
-          switch (ifImport.value) {
-            case 'import': {
-              // file is imported using require
-              const link = self.importableUrl(hrefAttr.value);
-              if (!link) {
-                return child;
-              }
-              const typeAttr = _.find(child.attrs, v => (v.name === 'type'));
-              if (typeAttr) {
-                switch (typeAttr.value) {
-                  case 'css':
-                    return self.processCssImport(hrefAttr, child);
-                  default:
-                    break;
-                }
-              }
-              const importable = `require('${link}');`;
-              self.dissected.js += `\n${importable}\n`;
+      if (hrefAttr && hrefAttr.value) {
+        const link = self.importableUrl(hrefAttr.value) || hrefAttr.value;
+        switch (ifImport.value) {
+          case 'import': {
+            // file is imported using require
+            if (!link) {
+              return child;
             }
-              break;
-              // Processing <link rel='stylesheet' href='filename.css'>
-            case 'stylesheet':
-              // absolute file path
-              return self.processCssImport(hrefAttr, child);
-            default:
-              break;
+            const typeAttr = _.find(child.attrs, v => (v.name === 'type'));
+            if (typeAttr) {
+              switch (typeAttr.value) {
+                case 'css':
+                  return self.processCssImport(link, child);
+                default:
+                  break;
+              }
+            }
+            const importable = `require('${link}');`;
+            self.dissected.js += `\n${importable}\n`;
           }
+            break;
+            // Processing <link rel='stylesheet' href='filename.css'>
+          case 'stylesheet':
+            // absolute file path
+            return self.processCssImport(link, child);
+          default:
+            break;
         }
       } else {
         return child;
@@ -230,11 +240,12 @@ class DissectHtml {
     }
     return null;
   }
-  processCssImport(hrefAttr, child) {
-    const link = path.resolve(this.path, '../', hrefAttr.value);
+  processCssImport(link, child) {
+    const absPath = path.resolve(path.dirname(this.path), link);
+    this.otherDeps.push(absPath);
     // checks if file exists
-    if (fs.existsSync(link)) {
-      const contents = fs.readFileSync(link, 'utf8');
+    if (fs.existsSync(absPath)) {
+      const contents = fs.readFileSync(absPath, 'utf8');
       // css is inlined
       const minified = this.processStyle(contents);
       if (minified) {
@@ -270,8 +281,11 @@ function convertPlaceholder(html, links, config) {
   const publicPath = typeof config.publicPath !== "undefined" ? config.publicPath : this.options.output.publicPath;
   const phs = Object.keys(links); // placeholders
   Promise.all(phs.map(function loadModule(ph) {
+    const resourcePath = links[ph];
+    const absPath = path.resolve(path.dirname(this.resourcePath), resourcePath);
+    this.addDependency(absPath);
     return new Promise((resolve, reject) => {
-      this.loadModule(links[ph], (err, src) => err ? reject(err) : resolve(src));
+      this.loadModule(resourcePath, (err, src) => err ? reject(err) : resolve(src));
     });
   }, this))
     .then(sources => sources.map(
@@ -318,5 +332,8 @@ module.exports = function (source, sourceMap) {
   dissectFn.dissect(parsed, srcFilepath);
   const links = dissectFn.links;
   const inject = dissectFn.dissected.html + dissectFn.dissected.js;
+  dissectFn.otherDeps.forEach((dep) => {
+    this.addDependency(dep);
+  }, this);
   convertPlaceholder.call(this, inject, links, config)
 };
