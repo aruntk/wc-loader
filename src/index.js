@@ -12,7 +12,6 @@ import path from 'path';
 import vm from 'vm';
 import * as _ from 'lodash';
 import * as Babel from 'babel-core';
-import extract from 'extract-loader';
 import assign from 'object-assign';
 import Synthesizer from './synthesis-gen.js';
 
