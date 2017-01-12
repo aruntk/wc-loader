@@ -56,17 +56,34 @@ npm i -D wc-loader
 
 ```js
 module: {
-  loaders: [{
-    test: /\.html$/,
-    loader: 'wc'
-  }]
+  loaders: [
+    {
+      test: /\.html$/, // handles html files. <link rel="import" href="path.html"> and import 'path.html';
+      loader: 'wc'
+    },
+    {
+      test: /\.js$/, // handles js files. <script src="path.js"></script> and import 'path';
+      loader: 'babel',
+      exclude: /node_modules/
+    },
+    {
+      test: /\.(png|jpg|gif|svg)$/, // handles assets. eg <img src="path.png">
+      loader: 'file',
+      query: {
+        name: '[name].[ext]?[hash]'
+      }
+    },
+  ]
 }
 ```
+
 
 ### Like it?
 
 :star: this repo
 
+
 ### Found a bug?
 
 Raise an issue!
+
