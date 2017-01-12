@@ -9,6 +9,7 @@ import polyclean from 'polyclean';
 import fs from 'fs';
 import url from 'url';
 import path from 'path';
+import vm from 'vm';
 import * as _ from 'lodash';
 import * as Babel from 'babel-core';
 import extract from 'extract-loader';
@@ -22,14 +23,12 @@ function randomIdent() {
 class DissectHtml {
   constructor(config, options) {
     this.dissected = {
-      head: '<!--__wc__loader -->\n',
-      body: '<!--__wc__loader -->\n',
+      html: '<!--__wc__loader -->\n',
       js: '', // js is appened last
     };
     this.config = config;
     this.links = {};
     this.options = options;
-    this.publicPath = typeof config.publicPath !== "undefined" ? config.publicPath : options.output.publicPath;
   }
   dissect(contents, sourcePath) {
     this.path = sourcePath;
@@ -49,8 +48,8 @@ class DissectHtml {
           _child.childNodes = self.processChildNodes(_child.childNodes);
           const _childContents = parse5.serialize(_child);
           this.dissected[_child.nodeName] = _childContents;
-          // const where = _child.nodeName === 'head';
-          // self.dissected.js += `\n${Synthesizer.generateJS(_childContents, where)}\n`;
+          const where = _child.nodeName === 'head';
+          self.dissected.html += `\n${Synthesizer.generateJS(_childContents, where)}\n`;
         }
           break;
 
@@ -164,7 +163,7 @@ class DissectHtml {
     // avoids var(--url-variable) and bound properties [[prop]] and {{prop}};
     if (inpUrl && !inpUrl.match(/var\(.*?\)|({{|\[\[)\s*[\w\.]+\s*(}}|\]\])/ig)) {
       // avoids absolute & remote urls
-      const link = this.parseUrl(inpUrl);
+      const link = this.importableUrl(inpUrl);
       if (link) {
         do {
           var ident = randomIdent();
@@ -175,7 +174,7 @@ class DissectHtml {
     }
     return inpUrl;
   }
-  parseUrl(link) {
+  importableUrl(link) {
     const root = this.config.root;
     if(!loaderUtils.isUrlRequest(link, root)) return;
     const uri = url.parse(link);
@@ -183,11 +182,8 @@ class DissectHtml {
       uri.hash = null;
       link = uri.format();
     }
-    return link;
-  }
-  importableUrl(link) {
-    const parsedLink = this.parseUrl(link);
-    return parsedLink? loaderUtils.urlToRequest(parsedLink, this.config.root): link;
+
+    return loaderUtils.urlToRequest(link, this.config.root);
   }
   processLinks(child) {
     const self = this;
@@ -268,6 +264,48 @@ function getLoaderConfig(context) {
 
   return assign(query, config);
 }
+function convertPlaceholder(html, links, config) {
+  const _this = this;
+  const callback = this.async();
+  const publicPath = typeof config.publicPath !== "undefined" ? config.publicPath : this.options.output.publicPath;
+  const phs = Object.keys(links); // placeholders
+  Promise.all(phs.map(function loadModule(ph) {
+    return new Promise((resolve, reject) => {
+      this.loadModule(links[ph], (err, src) => err ? reject(err) : resolve(src));
+    });
+  }, this))
+    .then(sources => sources.map(
+      // runModule may throw an error, so it's important that our promise is rejected in this case
+      ( src, i) => runModule(src, links[phs[i]], publicPath)
+    ))
+    .then(results => {
+      return html.replace(/xxxWCLINKxxx[0-9\.]+xxx/g, function(match) {
+        const i = phs.indexOf(match);
+        if(i === -1) {
+          return match;
+        }
+        return results[i];
+
+      });
+    })
+    .then(content => callback(null, content))
+    .catch(callback);
+}
+
+function runModule(src, filename, publicPath = "") {
+  const script = new vm.Script(src, {
+    filename,
+    displayErrors: true
+  });
+  const sandbox = {
+    module: {},
+    __webpack_public_path__: publicPath // eslint-disable-line camelcase
+  };
+
+  script.runInNewContext(sandbox);
+  // console.log(sandbox.module.exports);
+  return sandbox.module.exports.toString();
+}
 module.exports = function (source, sourceMap) {
   if (this.cacheable) {
     this.cacheable();
@@ -278,27 +316,7 @@ module.exports = function (source, sourceMap) {
   const parsed = parse5.parse(source);
   const dissectFn = new DissectHtml(config, this.options);
   dissectFn.dissect(parsed, srcFilepath);
-  const head = dissectFn.dissected.head;
-  const body = dissectFn.dissected.body;
-  const inject = dissectFn.dissected.js;
-  if (sourceMap) {
-    const currentRequest = loaderUtils.getCurrentRequest(this);
-    const SourceNode = SourceMap.SourceNode;
-    const SourceMapConsumer = SourceMap.SourceMapConsumer;
-    const sourceMapConsumer = new SourceMapConsumer(sourceMap);
-    const node = SourceNode.fromStringWithSourceMap(source, sourceMapConsumer);
-
-    node.prepend(inject);
-
-    const result = node.toStringWithSourceMap({
-      file: currentRequest,
-    });
-
-    this.callback(null, result.code, result.map.toJSON());
-
-    return;
-  }
-
-  // prepend collected inject at the top of file
-  return inject;
+  const links = dissectFn.links;
+  const inject = dissectFn.dissected.html + dissectFn.dissected.js;
+  convertPlaceholder.call(this, inject, links, config)
 };
