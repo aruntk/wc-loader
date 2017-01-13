@@ -1,10 +1,10 @@
 class _synthesizer {
   constructor(settings) {
-    this.settings = settings;
+    this.settings = settings
   }
   generateJS(html, toHead) {
-    const htmlStr = JSON.stringify(html);
-    const where = toHead ? 'head' : 'body';
+    const htmlStr = JSON.stringify(html)
+    const where = toHead ? 'head' : 'body'
     return `
     (function(document) {
       var _htmlStr = ${htmlStr};
@@ -19,8 +19,8 @@ class _synthesizer {
         document.write(_htmlStr);
       }
     })(document);
-    `;
+    `
   }
 
 }
-module.exports = new _synthesizer();
+module.exports = new _synthesizer()
