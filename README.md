@@ -13,16 +13,19 @@
   </a>
   <h1>WC Loader</h1>
   <p>Webcomponents webpack loader . Supports hot code reload.<p>
-   <a href="https://gitter.im/aruntk/meteorwebcomponents?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge">
+   <a href="https://www.npmjs.com/package/wc-loader">
+    <img
+      src="https://img.shields.io/npm/v/wc-loader.svg" height="20">
+  </a>
+     <a href="https://gitter.im/aruntk/meteorwebcomponents?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge">
     <img
       src="https://badges.gitter.im/Join Chat.svg" height="20">
   </a>
-  <p>
+
    <a href="https://www.paypal.me/arunkumartk">
     <img
       src="https://dantheman827.github.io/images/donate-button.svg" height="20">
   </a>
-  </p>
 <p> DEMO - <a href="https://github.com/aruntk/polymer-webpack-demo">https://github.com/aruntk/polymer-webpack-demo</a></p>
 </div>
 
