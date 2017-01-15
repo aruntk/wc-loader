@@ -87,3 +87,6 @@ module: {
 
 Raise an issue!
 
+### License
+
+MIT. Check [licence](licence) file.
