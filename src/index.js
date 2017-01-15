@@ -12,7 +12,7 @@ import polyclean from 'polyclean'
 import * as _ from 'lodash'
 import * as Babel from 'babel-core'
 import assign from 'object-assign'
-import Synthesizer from './synthesis-gen'
+import wcRenderer from './renderer'
 
 function randomIdent() {
   return 'xxxWCLINKxxx' + Math.random() + Math.random() + 'xxx'
@@ -47,7 +47,7 @@ class DissectHtml {
           const _childContents = parse5.serialize(_child)
           this.dissected[_child.nodeName] = _childContents
           const where = _child.nodeName === 'head'
-          self.dissected.html += `\n${Synthesizer.generateJS(_childContents, where)}\n`
+          self.dissected.html += `\n${wcRenderer.generateJS(_childContents, where)}\n`
         }
           break
 
@@ -327,6 +327,7 @@ module.exports = function (source) {
   dissectFn.dissect(parsed, srcFilepath)
   const links = dissectFn.links
   const inject = dissectFn.dissected.html + dissectFn.dissected.js
+  // otherDeps -> css dependencies for hot code reload.
   dissectFn.otherDeps.forEach(dep => {
     this.addDependency(dep)
   }, this)

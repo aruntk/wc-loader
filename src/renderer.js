@@ -1,4 +1,4 @@
-class _synthesizer {
+class _renderer {
   constructor(settings) {
     this.settings = settings
   }
@@ -23,4 +23,4 @@ class _synthesizer {
   }
 
 }
-module.exports = new _synthesizer()
+module.exports = new _renderer()
