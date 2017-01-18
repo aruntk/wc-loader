@@ -171,8 +171,9 @@ class DissectHtml {
   _changeRelUrl(inpUrl, basePath) {
     // avoids var(--url-variable) and bound properties [[prop]] and {{prop}}
     if (inpUrl && !inpUrl.match(/var\(.*?\)|({{|\[\[)\s*[\w\.]+\s*(}}|\]\])/ig)) {
+
+      const p = basePath ? path.join('', basePath, inpUrl) : inpUrl
       // avoids absolute & remote urls
-      const p = path.join('', basePath || '.', inpUrl)
       const link = this.importableUrl(p)
       if (link) {
         do {
