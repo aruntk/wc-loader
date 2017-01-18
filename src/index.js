@@ -155,7 +155,6 @@ class DissectHtml {
       self.dissected.js += `\nrequire('${importableUrl}');\n`
     } else {
       if(this.path.indexOf('example-item') > -1)
-      console.log(self.babelJs(parse5.serialize(child)))
       self.dissected.js += `\n${self.babelJs(parse5.serialize(child))}\n`
     }
     return null
