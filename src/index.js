@@ -154,13 +154,11 @@ class DissectHtml {
       }
       self.dissected.js += `\nrequire('${importableUrl}');\n`
     } else {
-      if(this.path.indexOf('example-item') > -1)
       self.dissected.js += `\n${self.babelJs(parse5.serialize(child))}\n`
     }
     return null
   }
   babelJs(js) {
-    // const prod = process.env.NODE_ENV ==='production'
     try {
       return Babel.transform(js, {
         presets: ['es2015']
