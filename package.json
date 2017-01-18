@@ -1,6 +1,6 @@
 {
   "name": "wc-loader",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "Web components webpack loader",
   "main": "index.js",
   "scripts": {
