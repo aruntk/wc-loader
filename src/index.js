@@ -130,7 +130,7 @@ class DissectHtml {
     }))
     return processedNodes.concat(pushNodes)
   }
-  processStyle(css, cssBasePath) {
+  processStyle(css, cssBasePath = '') {
     return this._changeCssUrls(polyclean.stripCss(css), cssBasePath)
   }
   _changeCssUrls(text, cssBasePath) {
