@@ -154,6 +154,8 @@ class DissectHtml {
       }
       self.dissected.js += `\nrequire('${importableUrl}');\n`
     } else {
+      if(this.path.indexOf('example-item') > -1)
+      console.log(self.babelJs(parse5.serialize(child)))
       self.dissected.js += `\n${self.babelJs(parse5.serialize(child))}\n`
     }
     return null
@@ -161,7 +163,9 @@ class DissectHtml {
   babelJs(js) {
     // const prod = process.env.NODE_ENV ==='production'
     try {
-      return Babel.transform(js).code
+      return Babel.transform(js, {
+        presets: ['es2015']
+      }).code
     } catch (err) {
       console.error(`Error in ${this.path}`) // eslint-disable-line no-console
       console.error(err) // eslint-disable-line no-console
