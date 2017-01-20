@@ -161,7 +161,14 @@ class DissectHtml {
   babelJs(js) {
     try {
       return Babel.transform(js, {
-        presets: ['es2015']
+        presets: [
+          ['es2015',
+            {
+              modules: false,
+              blacklist: ['useStrict']
+            },
+          ]
+        ]
       }).code
     } catch (err) {
       console.error(`Error in ${this.path}`) // eslint-disable-line no-console
