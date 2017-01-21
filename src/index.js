@@ -10,7 +10,6 @@ import parse5 from 'parse5'
 import loaderUtils from 'loader-utils'
 import polyclean from 'polyclean'
 import * as _ from 'lodash'
-import * as Babel from 'babel-core'
 import assign from 'object-assign'
 import wcRenderer from './renderer'
 
@@ -22,7 +21,8 @@ class DissectHtml {
   constructor(config, options) {
     this.dissected = {
       html: '/*__wc__loader*/\n',
-      js: '' // js is appened last
+      js: '',
+      requires: '', // appended first
     }
     this.config = config
     this.links = {}
@@ -152,28 +152,11 @@ class DissectHtml {
       if (!importableUrl) {
         return child
       }
-      self.dissected.js += `\nrequire('${importableUrl}');\n`
+      self.dissected.requires += `\nrequire('${importableUrl}');\n`
     } else {
-      self.dissected.js += `\n${self.babelJs(parse5.serialize(child))}\n`
+      self.dissected.js += `\n${parse5.serialize(child)}\n`
     }
     return null
-  }
-  babelJs(js) {
-    try {
-      return Babel.transform(js, {
-        presets: [
-          ['es2015',
-            {
-              modules: false,
-              blacklist: ['useStrict']
-            },
-          ]
-        ]
-      }).code
-    } catch (err) {
-      console.error(`Error in ${this.path}`) // eslint-disable-line no-console
-      console.error(err) // eslint-disable-line no-console
-    }
   }
   _changeRelUrl(inpUrl, basePath) {
     // avoids var(--url-variable) and bound properties [[prop]] and {{prop}}
@@ -230,7 +213,7 @@ class DissectHtml {
               }
             }
             const importable = `require('${link}');`
-            self.dissected.js += `\n${importable}\n`
+            self.dissected.requires += `\n${importable}\n`
           }
             break
             // Processing <link rel='stylesheet' href='filename.css'>
@@ -335,7 +318,7 @@ module.exports = function (source) {
   const dissectFn = new DissectHtml(config, this.options)
   dissectFn.dissect(parsed, srcFilepath)
   const links = dissectFn.links
-  const inject = dissectFn.dissected.html + dissectFn.dissected.js
+  const inject = dissectFn.dissected.html + dissectFn.dissected.requires + dissectFn.dissected.js
   // otherDeps -> css dependencies for hot code reload.
   dissectFn.otherDeps.forEach(dep => {
     this.addDependency(dep)
