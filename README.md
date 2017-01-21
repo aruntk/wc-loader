@@ -62,7 +62,10 @@ module: {
   loaders: [
     {
       test: /\.html$/, // handles html files. <link rel="import" href="path.html"> and import 'path.html';
-      loader: 'wc'
+      loader: 'wc' 
+      // if you are using es6 inside html use 
+      // loader: 'babel!wc'
+      // similarly you can use coffee, typescript etc. pipe wc result through the respective loader.
     },
     {
       test: /\.js$/, // handles js files. <script src="path.js"></script> and import 'path';
@@ -79,7 +82,19 @@ module: {
   ]
 }
 ```
+### Using es6, typescript, coffee etc inside html
 
+if you are using es6 inside html use 
+```js
+loader: 'babel!wc'
+```
+similarly you can use coffee, typescript etc. pipe wc result through the respective loader.
+```js
+loader: 'ts!wc'
+```
+```js
+loader: 'coffee!wc'
+```
 
 ### Like it?
 
