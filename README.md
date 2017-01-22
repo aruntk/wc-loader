@@ -62,19 +62,19 @@ module: {
   loaders: [
     {
       test: /\.html$/, // handles html files. <link rel="import" href="path.html"> and import 'path.html';
-      loader: 'wc' 
+      loader: 'wc-loader' 
       // if you are using es6 inside html use 
-      // loader: 'babel!wc'
+      // loader: 'babel-loader!wc-loader'
       // similarly you can use coffee, typescript etc. pipe wc result through the respective loader.
     },
     {
       test: /\.js$/, // handles js files. <script src="path.js"></script> and import 'path';
-      loader: 'babel',
+      loader: 'babel-loader',
       exclude: /node_modules/
     },
     {
       test: /\.(png|jpg|gif|svg)$/, // handles assets. eg <img src="path.png">
-      loader: 'file',
+      loader: 'file-loader',
       query: {
         name: '[name].[ext]?[hash]'
       }
@@ -86,14 +86,14 @@ module: {
 
 if you are using es6 inside html use 
 ```js
-loader: 'babel!wc'
+loader: 'babel-loader!wc-loader'
 ```
 similarly you can use coffee, typescript etc. pipe wc result through the respective loader.
 ```js
-loader: 'ts!wc'
+loader: 'ts-loader!wc-loader'
 ```
 ```js
-loader: 'coffee!wc'
+loader: 'coffee-loader!wc-loader'
 ```
 
 ### Like it?
