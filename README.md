@@ -17,9 +17,9 @@
     <img
       src="https://img.shields.io/npm/v/wc-loader.svg" height="20">
   </a>
-     <a href="https://gitter.im/aruntk/meteorwebcomponents?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge">
+     <a href="https://gitter.im/aruntk/polymer?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge">
     <img
-      src="https://badges.gitter.im/Join Chat.svg" height="20">
+      src="https://badges.gitter.im/aruntk/polymer.svg" height="20">
   </a>
 
    <a href="https://www.paypal.me/arunkumartk">
