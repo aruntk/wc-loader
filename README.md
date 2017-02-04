@@ -25,11 +25,6 @@
     <img
       src="https://badges.gitter.im/aruntk/polymer.svg" height="20">
   </a>
-
-   <a href="https://www.paypal.me/arunkumartk">
-    <img
-      src="https://dantheman827.github.io/images/donate-button.svg" height="20">
-  </a>
 <p> DEMO - <a href="https://github.com/aruntk/polymer-webpack-demo">https://github.com/aruntk/polymer-webpack-demo</a></p>
 </div>
 
