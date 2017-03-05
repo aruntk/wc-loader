@@ -46,6 +46,7 @@ class DissectHtml {
           _child.childNodes = self.processChildNodes(_child.childNodes)
           const _childContents = parse5.serialize(_child)
           this.dissected[_child.nodeName] = _childContents
+          // boolean where determines the section of html the content goes in
           const where = _child.nodeName === 'head'
           self.dissected.html += `\n${wcRenderer.generateJS(_childContents, where)}\n`
         }
@@ -53,6 +54,9 @@ class DissectHtml {
 
         case 'template': {
           const template = child
+          // template does not have a direct childNodes property.
+          // instead it has a content peoperty which contains a document fragment node.
+          // the document fragment node has childNodes prop
           const tmContent = template.content
           const isWalkable = tmContent && tmContent.nodeName === '#document-fragment' && tmContent.childNodes
           if (isWalkable) {
@@ -94,6 +98,7 @@ class DissectHtml {
           return domModule
         }
         case 'div': {
+          // this is required to avoid div added by vulcanization
           const divChild = child
           const attrs = _.filter(divChild.attrs, o => (o.name === 'hidden' || o.name === 'by-vulcanize'))
           if (attrs.length >= 2) {
@@ -107,9 +112,11 @@ class DissectHtml {
           }
         }
           break
+          // remove comment and documentType nodes
         case '#comment':
         case '#documentType':
           break
+          // every other node
         default: {
           const defChild = child
           const attrs = _.map(defChild.attrs, o => {
@@ -148,12 +155,15 @@ class DissectHtml {
     const self = this
     const importSource = _.find(child.attrs, v => (v.name === 'src'))
     if (importSource && importSource.value) {
+      // script tag contains a source file url
       const importableUrl = self.importableUrl(importSource.value)
       if (!importableUrl) {
+        // link is absolute or remote. so do nothing
         return child
       }
       self.dissected.requires += `\nrequire('${importableUrl}');\n`
     } else {
+      // script inside the tag is added to main js part
       self.dissected.js += `\n${parse5.serialize(child)}\n`
     }
     return null
@@ -175,6 +185,7 @@ class DissectHtml {
     }
     return inpUrl
   }
+  // changes relative urls to request format and returns if link is absolute.
   importableUrl(link) {
     const root = this.config.root
     if (!loaderUtils.isUrlRequest(link, root)) {
@@ -205,6 +216,7 @@ class DissectHtml {
             }
             const typeAttr = _.find(child.attrs, v => (v.name === 'type'))
             if (typeAttr) {
+              // process type="css" files
               switch (typeAttr.value) {
                 case 'css':
                   return self.processCssImport(link, child)
