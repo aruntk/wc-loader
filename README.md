@@ -17,14 +17,13 @@
     <img
       src="https://img.shields.io/npm/v/wc-loader.svg" height="20">
   </a>
-     <a href="https://gitter.im/aruntk/meteorwebcomponents?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge">
+     <a href="https://www.npmjs.com/package/wc-loader">
     <img
-      src="https://badges.gitter.im/Join Chat.svg" height="20">
+      src="https://img.shields.io/npm/dt/wc-loader.svg" height="20">
   </a>
-
-   <a href="https://www.paypal.me/arunkumartk">
+     <a href="https://gitter.im/aruntk/polymer?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge">
     <img
-      src="https://dantheman827.github.io/images/donate-button.svg" height="20">
+      src="https://badges.gitter.im/aruntk/polymer.svg" height="20">
   </a>
 <p> DEMO - <a href="https://github.com/aruntk/polymer-webpack-demo">https://github.com/aruntk/polymer-webpack-demo</a></p>
 </div>
