@@ -20,7 +20,7 @@ function randomIdent() {
 class DissectHtml {
   constructor(config, options) {
     this.dissected = {
-      html: '/*__wc__loader*/\n',
+      html: '/*__wc__loader*/',
       js: '',
       requires: '', // appended first
     }
@@ -48,7 +48,9 @@ class DissectHtml {
           this.dissected[_child.nodeName] = _childContents
           // boolean where determines the section of html the content goes in
           const where = _child.nodeName === 'head'
-          self.dissected.html += `\n${wcRenderer.generateJS(_childContents, where)}\n`
+          if(!_childContents.match('^[\\n\\r\s]+$')) {
+            self.dissected.html += `${wcRenderer.generateJS(_childContents, where)}`
+          }
         }
           break
 

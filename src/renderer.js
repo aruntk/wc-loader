@@ -5,21 +5,7 @@ class _renderer {
   generateJS(html, toHead) {
     const htmlStr = JSON.stringify(html)
     const where = toHead ? 'head' : 'body'
-    return `
-    (function(document) {
-      var _htmlStr = ${htmlStr};
-      if (document.${where}) {
-        var el = document.${where};
-        var div = document.createElement('div');
-        div.innerHTML = _htmlStr;
-        while (div.children.length > 0) {
-          el.appendChild(div.children[0]);
-        }
-      } else {
-        document.write(_htmlStr);
-      }
-    })(document);
-    `
+    return `!function(a){var b=${htmlStr};if(a.${where}){var c=a.${where},d=a.createElement("div");for(d.innerHTML=b;d.children.length>0;)c.appendChild(d.children[0])}else a.write(b)}(document);`
   }
 
 }
