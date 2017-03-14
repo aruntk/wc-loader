@@ -108,11 +108,10 @@ const defaultMinifierOptions = {
   customAttrAssign: [/\$=/],
   ignoreCustomFragments: [/style\$?="\[\[.*?\]\]"/],
 }
-```
-      
-Use custom settings by config setting `minifierOptions`
+```  
+Use custom options - by config setting `minifierOptions`
 
-Refer https://github.com/kangax/html-minifier from more info
+Refer https://github.com/kangax/html-minifier for more info
 
 ### Like it?
 
