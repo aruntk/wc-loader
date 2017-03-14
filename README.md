@@ -94,6 +94,25 @@ loader: 'ts-loader!wc-loader'
 ```js
 loader: 'coffee-loader!wc-loader'
 ```
+### Options
+
+#### Minify html
+
+```js
+loader: 'babel-loader!wc-loader?minify=true'
+```
+
+default options are
+```js
+      const defaultMinifierOptions = {
+        collapseWhitespace: true,
+        customAttrAssign: [/\$=/],
+        ignoreCustomFragments: [/style\$?="\[\[.*?\]\]"/],
+      }
+      ```
+Use custom settings by config setting `minifierOptions`
+
+Refer https://github.com/kangax/html-minifier from more info
 
 ### Like it?
 
@@ -107,3 +126,4 @@ Raise an issue!
 ### License
 
 MIT. Check [licence](licence) file.
+
