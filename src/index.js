@@ -48,9 +48,7 @@ class DissectHtml {
           this.dissected[_child.nodeName] = _childContents
           // boolean where determines the section of html the content goes in
           const where = _child.nodeName === 'head'
-          if(!_childContents.match('^[\\n\\r\s]+$')) {
-            self.dissected.html += `${wcRenderer.generateJS(_childContents, where)}`
-          }
+          self.dissected.html += `${wcRenderer.generateJS(_childContents, where, self.config)}`
         }
           break
 
