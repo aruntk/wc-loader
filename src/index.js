@@ -144,7 +144,7 @@ class DissectHtml {
     const self = this
     // to get -> property: url(filepath)
 
-    const processed = text.replace(/url\(["']?([^"')]+?)["']?\)/ig, function (_u, url) {
+    const processed = text.replace(/url\(["']?((?!.*:\/\/|"|'|\)).+?)["']?\)/ig, function (_u, url) {
       // to get -> filepath from url(filepath), url('filepath') and url('filepath')
       return `url(${self._changeRelUrl(url, path.dirname(cssBasePath))})`
     })
