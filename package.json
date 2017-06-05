@@ -1,12 +1,16 @@
 {
   "name": "wc-loader",
-  "version": "1.1.4",
+  "version": "1.1.3",
   "description": "Web components webpack loader",
   "main": "index.js",
   "scripts": {
-    "compile": "babel --presets es2015 -d lib/ src/",
+    "compile": "npm run clean && babel --presets es2015 -d lib/ src/",
+    "clean": "rm -rf lib/",
+    "preversion": "npm test",
+    "version": "git add -A dist",
+    "postversion": "git push && git push --tags",
     "prepublish": "npm run compile",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\""
   },
   "dependencies": {
     "html-minifier": "^3.4.1",
