@@ -207,13 +207,13 @@ class DissectHtml {
     if (ifImport) {
       const hrefAttr = _.find(child.attrs, v => v.name === 'href')
       if (hrefAttr && hrefAttr.value) {
-        const link = self.importableUrl(hrefAttr.value) || hrefAttr.value
+        const link = self.importableUrl(hrefAttr.value)
+        if (!link) {
+          return child
+        }
         switch (ifImport.value) {
           case 'import': {
             // file is imported using require
-            if (!link) {
-              return child
-            }
             const typeAttr = _.find(child.attrs, v => (v.name === 'type'))
             if (typeAttr) {
               // process type="css" files
