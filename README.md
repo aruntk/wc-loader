@@ -12,7 +12,7 @@
       src="https://worldvectorlogo.com/logos/webpack.svg">
   </a>
   <h1>WC Loader</h1>
-  <p>Webcomponents webpack loader . Supports hot code reload.<p>
+  <p>Webcomponents webpack loader . Supports hot code reload. 🚽 😜<p>
    <a href="https://www.npmjs.com/package/wc-loader">
     <img
       src="https://img.shields.io/npm/v/wc-loader.svg" height="20">
@@ -38,7 +38,7 @@ wc-loader helps you use webcomponents (polymer, x-tags etc also) with webpack.
 wc-loader uses [parse5](https://github.com/inikulin/parse5) which parses HTML the way the latest version of your browser does. 
 Does not use any regex to parse html. :)
 
-#####Main functions
+##### Main functions
 
 1. Handles html link imports. **With Hot Code Reload Support**
 2. Handles external script files (script src). **With Hot Code Reload Support**
