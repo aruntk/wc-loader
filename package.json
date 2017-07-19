@@ -7,7 +7,7 @@
     "compile": "npm run clean && babel --presets es2015 -d lib/ src/",
     "clean": "rm -rf lib/",
     "preversion": "npm run compile",
-    "postversion": "git push --tags",
+    "postversion": "git push && git push --tags",
     "prepublish": "npm run compile",
     "test": "echo \"Error: no test specified\""
   },
