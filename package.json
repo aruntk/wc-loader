@@ -6,7 +6,7 @@
   "scripts": {
     "compile": "npm run clean && babel --presets es2015 -d lib/ src/",
     "clean": "rm -rf lib/",
-    "preversion": "npm test",
+    "preversion": "npm run compile",
     "version": "git add -A",
     "postversion": "git push && git push --tags",
     "prepublish": "npm run compile",
