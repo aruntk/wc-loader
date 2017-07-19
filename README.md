@@ -26,6 +26,7 @@
       src="https://badges.gitter.im/aruntk/polymer.svg" height="20">
   </a>
 <p> DEMO - <a href="https://github.com/aruntk/polymer-webpack-demo">https://github.com/aruntk/polymer-webpack-demo</a></p>
+<p> Polymer Webpack Apollo-Graphql Demo - <a href="https://github.com/aruntk/githunt-polymer">https://github.com/aruntk/githunt-polymer</a></p>
 </div>
 
 
