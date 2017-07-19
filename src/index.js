@@ -260,7 +260,8 @@ class DissectHtml {
           childNodes: [
             {
               nodeName: '#text',
-              value: minified
+              value: minified,
+              parentNode: child,
             }
           ]
         })
