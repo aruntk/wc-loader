@@ -59,44 +59,87 @@ npm i -D wc-loader
 
 ```js
 module: {
-  loaders: [
-    {
-      test: /\.html$/, // handles html files. <link rel="import" href="path.html"> and import 'path.html';
-      loader: 'wc-loader' 
-      // if you are using es6 inside html use 
-      // loader: 'babel-loader!wc-loader'
-      // similarly you can use coffee, typescript etc. pipe wc result through the respective loader.
-    },
-    {
-      test: /\.js$/, // handles js files. <script src="path.js"></script> and import 'path';
-      loader: 'babel-loader',
-      exclude: /node_modules/
-    },
-    {
-      test: /\.(png|jpg|gif|svg)$/, // handles assets. eg <img src="path.png">
-      loader: 'file-loader',
-      query: {
-        name: '[name].[ext]?[hash]'
-      }
-    },
+    rules: [
+      {
+        test: /\.js$/, // handles js files. <script src="path.js"></script> and import 'path';
+        use: [{
+          loader: 'babel-loader',
+        }],
+        exclude: /node_modules/
+      },
+      {
+        test: /\.(png|jpg|gif|svg)$/, // handles assets. eg <img src="path.png">
+        use: [{
+          loader: 'file-loader',
+          options: {
+            name: '[name].[ext]?[hash]'
+          }
+        }]
+      },
+      {
+        test: /\.html$/, // handles html files. <link rel="import" href="path.html"> and import 'path.html';
+        use: [
+          // if you not using es6 inside html remove babel-loader
+          {
+
+            loader: 'babel-loader',
+            // similarly you can use coffee, typescript etc.
+          },
+          {
+            loader: 'wc-loader',
+            options: {
+              minify: true,
+            },
+          }]
+      },
+    ],
   ]
 }
 ```
+
+
 ### Using es6, typescript, coffee etc inside html
 
-if you are using es6 inside html use 
+In the following config
+
 ```js
-loader: 'babel-loader!wc-loader'
+{
+  test: /\.html$/,
+  use: [
+    {
+      loader: 'babel-loader', // change this line
+    },
+    {
+      loader: 'wc-loader',
+      options: {
+        minify: true,
+      },
+    }]
+},
+```
+if you are using es6 inside html use
+```js
+loader: 'babel-loader'
 ```
 similarly you can use coffee, typescript etc. pipe wc result through the respective loader.
 ```js
-loader: 'ts-loader!wc-loader'
+loader: 'ts-loader'
 ```
 ```js
-loader: 'coffee-loader!wc-loader'
+loader: 'coffee-loader'
 ```
 
 ### Options
+
+You can either specify options as part of the loader string or as options property
+
+{
+  loader: 'wc-loader',
+  options: {
+    minify: true
+  }
+}
+
 
 #### 'Root-relative' URLs
 
@@ -109,23 +152,24 @@ and then translated.
 <img src="/image.jpg">
 ```
 ```js
-// webpack config
+// webpack config. options.root can also be used
 
-loader: 'babel-loader!wc-loader?root=/absolue/path/to/root/folder'
+loader: 'wc-loader?root=/absolue/path/to/root/folder'
 
 // or
 
-loader: 'babel-loader!wc-loader?root=' + path.resolve('relative/path/to/root/folder')
+loader: 'wc-loader?root=' + path.resolve('relative/path/to/root/folder')
 
 // example
 
-loader: 'babel-loader!wc-loader?root=/'
+loader: 'wc-loader?root=/'
 
 ```
+
 #### Minify html
 
 ```js
-loader: 'babel-loader!wc-loader?minify=true'
+loader: 'wc-loader?minify=true'
 ```
 default options are
 ```js
@@ -139,18 +183,30 @@ Use custom options - by config setting `minifierOptions`
 
 Refer https://github.com/kangax/html-minifier for more info
 
+```js
+options: {
+   minify: true,
+   minifierOptions: {
+     // custom options
+   }
+}
+```
 
 ### Like it?
 
 :star: this repo
 
 
+
 ### Found a bug?
 
 Raise an issue!
 
+
 ### License
 
 MIT. Check [licence](licence) file.
+
+
 
 
