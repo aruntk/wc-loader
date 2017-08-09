@@ -133,13 +133,14 @@ loader: 'coffee-loader'
 
 You can either specify options as part of the loader string or as options property
 
+```js
 {
   loader: 'wc-loader',
   options: {
     minify: true
   }
 }
-
+```
 
 #### 'Root-relative' URLs
 
