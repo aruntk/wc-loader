@@ -8,10 +8,12 @@ import path from 'path'
 import vm from 'vm'
 import parse5 from 'parse5'
 import loaderUtils from 'loader-utils'
+import validateOptions from 'schema-utils'
 import polyclean from 'polyclean'
 import * as _ from 'lodash'
-import assign from 'object-assign'
 import wcRenderer from './renderer'
+
+const schema = require('./options')
 
 function randomIdent() {
   return 'xxxWCLINKxxx' + Math.random() + Math.random() + 'xxx'
@@ -271,13 +273,9 @@ class DissectHtml {
   }
 }
 function getLoaderConfig(context) {
-  const query = loaderUtils.getOptions(context) || {}
-  const configKey = query.config || 'wcLoader'
-  const config = context.options && context.options.hasOwnProperty(configKey) ? context.options[configKey] : {}
-
-  delete query.config
-
-  return assign(query, config)
+  const options = loaderUtils.getOptions(context) || {}
+  validateOptions(schema, options, 'HTML Loader')
+  return options
 }
 function convertPlaceholder(html, links, config) {
   const callback = this.async()

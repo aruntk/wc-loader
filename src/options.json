@@ -1,0 +1,15 @@
+{
+  "type": "object",
+  "properties": {
+    "root": {
+      "type": "string"
+    },
+    "minify": {
+      "type": "boolean"
+    },
+    "minifierOptions" : {
+      "type": "object"
+    }
+  },
+  "additionalProperties": false
+}
