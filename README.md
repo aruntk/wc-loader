@@ -111,10 +111,15 @@ and then translated.
 ```js
 // webpack config
 
-{
-  test: /\.html$/,
-  loader: 'babel-loader!wc-loader?root=/',
-},
+loader: 'babel-loader!wc-loader?root=/absolue/path/to/root/folder'
+
+// or
+
+loader: 'babel-loader!wc-loader?root=' + path.resolve('relative/path/to/root/folder')
+
+// example
+
+loader: 'babel-loader!wc-loader?root=/'
 
 ```
 #### Minify html
