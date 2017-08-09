@@ -168,11 +168,12 @@ class DissectHtml {
     }
     return null
   }
-  _changeRelUrl(inpUrl, basePath) {
+  _changeRelUrl(inpUrl = '', basePath) {
     // avoids var(--url-variable) and bound properties [[prop]] and {{prop}} and data urls
-    if (inpUrl && !inpUrl.match(/^data:|var\(.*?\)|({{|\[\[)\s*[\w\.]+\s*(}}|\]\])/ig)) {
-
-      const p = basePath ? path.join('', basePath, inpUrl) : inpUrl
+    const linkIsNotVar = !inpUrl.match(/^data:|var\(.*?\)|({{|\[\[)\s*[\w\.]+\s*(}}|\]\])/ig)
+    if (inpUrl && linkIsNotVar) {
+      const linkIsRelative = !path.isAbsolute(inpUrl)
+      const p = (basePath && linkIsRelative) ? path.join('', basePath, inpUrl) : inpUrl
       // avoids absolute & remote urls
       const link = this.importableUrl(p)
       if (link) {
@@ -196,7 +197,6 @@ class DissectHtml {
       uri.hash = null
       link = uri.format()
     }
-
     return loaderUtils.urlToRequest(link, root)
   }
   processLinks(child) {

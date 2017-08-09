@@ -95,8 +95,28 @@ loader: 'ts-loader!wc-loader'
 ```js
 loader: 'coffee-loader!wc-loader'
 ```
+
 ### Options
 
+#### 'Root-relative' URLs
+
+For urls that start with a `/`, the default behavior is to not translate them. You'll get a file not found error in the browser. (/path = example.com/path for the browser)
+If a `root` query parameter is set, however, it will be prepended to the url
+and then translated.
+
+``` html
+<!-- file.html -->
+<img src="/image.jpg">
+```
+```js
+// webpack config
+
+{
+  test: /\.html$/,
+  loader: 'babel-loader!wc-loader?root=/',
+},
+
+```
 #### Minify html
 
 ```js
@@ -114,6 +134,7 @@ Use custom options - by config setting `minifierOptions`
 
 Refer https://github.com/kangax/html-minifier for more info
 
+
 ### Like it?
 
 :star: this repo
@@ -126,4 +147,5 @@ Raise an issue!
 ### License
 
 MIT. Check [licence](licence) file.
+
 
