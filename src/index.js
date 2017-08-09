@@ -271,7 +271,7 @@ class DissectHtml {
   }
 }
 function getLoaderConfig(context) {
-  const query = loaderUtils.parseQuery(context.query)
+  const query = loaderUtils.getOptions(context) || {}
   const configKey = query.config || 'wcLoader'
   const config = context.options && context.options.hasOwnProperty(configKey) ? context.options[configKey] : {}
 

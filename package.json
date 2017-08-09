@@ -12,18 +12,18 @@
     "test": "echo \"Error: no test specified\""
   },
   "dependencies": {
-    "html-minifier": "^3.4.1",
-    "loader-utils": "^0.2.16",
+    "html-minifier": "^3.5.3",
+    "loader-utils": "^1.1.0",
     "lodash": "^4.17.4",
-    "object-assign": "^4.1.0",
-    "parse5": "^3.0.1",
+    "object-assign": "^4.1.1",
+    "parse5": "^3.0.2",
     "polyclean": "^1.3.1"
   },
   "devDependencies": {
-    "ava": "^0.16.0",
-    "babel-cli": "^6.18.0",
-    "babel-preset-es2015": "^6.18.0",
-    "xo": "^0.17.0"
+    "ava": "^0.21.0",
+    "babel-cli": "^6.24.1",
+    "babel-preset-es2015": "^6.24.1",
+    "xo": "^0.18.2"
   },
   "repository": {
     "type": "git",
